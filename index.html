@@ -7,22 +7,39 @@
 </head>
 <body>
 <input type="text" id="mydate" gldp-id="mydate"/>
-<div gldp-el="mydate"
-     style="width:400px; height:300px; position:absolute; top:70px; left:100px;">
-</div>
+<div gldp-el="mydate" style="width:400px; height:300px; position:absolute; top:70px; left:100px;"></div>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 <script src="glDatePicker.min.js"></script>
 <script type="text/javascript">
-    $.ajax({
-        url: '/main.php' + document.location.search,
-        method: 'get',
-        dataType: 'json',
-        success: function (data) {
-            alert(data);
-        }
-    });
     $(window).load(function () {
-        $('input').glDatePicker();
+        $.ajax({
+            url: '/main.php' + document.location.search,
+            method: 'get',
+            dataType: 'json',
+            success: function (counts) {
+                const $input = $('#mydate');
+
+                if (counts['message']) {
+                    alert(counts['message'])
+                    return
+                }
+
+                const N = 1;
+                const selectableDates = [];
+                for (const date in counts) {
+                    if (counts[date] < N) {
+                        selectableDates.push({date: new Date(date)})
+                    }
+                }
+
+                $input.glDatePicker({
+                    showAlways: true,
+                    allowMonthSelect: false,
+                    allowYearSelect: false,
+                    selectableDates: selectableDates
+                });
+            }
+        });
     });
 </script>
 </body>
