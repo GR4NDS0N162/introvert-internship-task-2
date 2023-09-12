@@ -50,10 +50,20 @@ class Solution
             $count = 250;
             $offset = 0;
 
+            $from = new DateTime();
+            $from->setTime(0, 0);
+
+            $to = new DateTime();
+            $to->setTime(0, 0);
+            $to->add(new DateInterval('P30D'));
+
             do {
-                $result = $this->api->lead->getAll(status: $statusLeadIds, count: $count, offset: $offset);
+                $result = $this->api->lead->getAll(status: $statusLeadIds, ifmodif: $from->getTimestamp(), count: $count, offset: $offset);
 
                 foreach ($result['result'] as $lead) {
+                    if ($lead['last_modified'] >= $to->getTimestamp()) {
+                        continue;
+                    }
                     foreach ($lead['custom_fields'] as $customField) {
                         if ($customField['id'] == $dateFieldId) {
                             $date = date('Y-m-d', strtotime($customField['values'][0]['value']));
